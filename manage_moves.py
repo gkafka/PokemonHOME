@@ -3,6 +3,9 @@ import json
 import serebii_reader
 
 DEFAULT_DATA_PATH = 'data_moves.json'
+FULL_COUNT = 'full count'
+MAIN_COUNT = 'main count'
+
 
 class ManageMoves(object):
     def __init__(self):
@@ -11,25 +14,46 @@ class ManageMoves(object):
 
         self.loadData()
 
-    def analyzeMoveset(self, pokemon, gen, alt=''):
+    def analyzeMoveset(self, pokemon, gen, alt='', tm=False, egg=False, tutor=False):
         moveset = []
 
         sr = serebii_reader.SerebiiReader()
-        all_moves = sr.getMoveset(pokemon, gen, alt)
+        moves = sr.getMoveset(pokemon, gen, alt)
 
-        for move in all_moves:
-            moveset.append((move, self._data[move]['main count']))
+        for move, level in moves.items():
+            moveset.append(
+                (
+                    self._data[move][MAIN_COUNT],
+                    self._data[move][FULL_COUNT],
+                    move,
+                    'Level {0}'.format(level),
+                )
+            )
 
-        moveset = sorted(moveset, key=lambda t: t[1])
+        extras = {}
+        if any([tm, egg, tutor]):
+            extras = sr.getMovesetExtras(pokemon, gen, alt, tm, egg, tutor)
+
+        for move, label in extras.items():
+            moveset.append(
+                (
+                    self._data[move][MAIN_COUNT],
+                    self._data[move][FULL_COUNT],
+                    move,
+                    label,
+                )
+            )
+
+        moveset = sorted(moveset, key=lambda t: (t[0], t[1]))
 
         return moveset
 
     def depositPokemon(self, moveset, is_main=True):
         for move in moveset:
-            self._data[move]['full count'] += 1
+            self._data[move][FULL_COUNT] += 1
 
             if is_main:
-                self._data[move]['main count'] += 1
+                self._data[move][MAIN_COUNT] += 1
 
         return
 
@@ -52,10 +76,10 @@ class ManageMoves(object):
 
     def withdrawPokemon(self, moveset, is_main):
         for move in moveset:
-            self._data[move]['full count'] -= 1
+            self._data[move][FULL_COUNT] -= 1
 
             if is_main:
-                self._data[move]['main count'] -= 1
+                self._data[move][MAIN_COUNT] -= 1
 
         return
 
