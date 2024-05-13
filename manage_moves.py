@@ -13,7 +13,10 @@ class ManageMoves(object):
         self._default_path = DEFAULT_DATA_PATH
         self._data = []
 
-        self.loadData()
+        self.load_data()
+
+    def __getitem__(self, key):
+        return self._data[key]
 
     def analyze_moveset(self, pokemon, gen, alt='', tm=False, egg=False, tutor=False):
         moveset = []
