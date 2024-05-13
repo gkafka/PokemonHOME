@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 
+
 SUFFIX = 'suffix'
 TAG = 'tag'
 
@@ -72,16 +73,17 @@ MOVE_TABLE_TM_TITLES = {
 MOVE_TABLE_EGG_MOVES = 'Egg Moves'
 MOVE_TABLE_MOVE_TUTOR_BASE = 'Move Tutor'
 
+
 class SerebiiReader(object):
     def __init__(self):
         pass
 
-    def getMoveset(self, pokemon, gen, alt=''):
-        gen = self.standardizeGen(gen)
+    def get_moveset(self, pokemon, gen, alt=''):
+        gen = self.standardize_gen(gen)
 
         moveset = {}
 
-        url = self.getURLPokemon(pokemon, gen)
+        url = self.get_url_pokemon(pokemon, gen)
 
         html = requests.get(url)
         soup = BeautifulSoup(html.text, 'html.parser')
@@ -100,7 +102,7 @@ class SerebiiReader(object):
 
             title = (
                 MOVE_TABLE_LEVEL_UP_TITLES[alt]
-                if alt else MOVE_TABLE_LEVEL_UP_TITLES[self.standardizeGen(gen)]
+                if alt else MOVE_TABLE_LEVEL_UP_TITLES[self.standardize_gen(gen)]
             )
             if header.text == title:
                 move_table = table
@@ -117,12 +119,12 @@ class SerebiiReader(object):
 
         return moveset
 
-    def getMovesetExtras(self, pokemon, gen, alt='', tm=False, egg=False, tutor=False):
-        gen = self.standardizeGen(gen)
+    def get_moveset_extras(self, pokemon, gen, alt='', tm=False, egg=False, tutor=False):
+        gen = self.standardize_gen(gen)
 
         moveset = {}
 
-        url = self.getURLPokemon(pokemon, gen)
+        url = self.get_url_pokemon(pokemon, gen)
 
         html = requests.get(url)
         soup = BeautifulSoup(html.text, 'html.parser')
@@ -143,7 +145,7 @@ class SerebiiReader(object):
             if tm:
                 title = (
                     MOVE_TABLE_TM_TITLES[alt]
-                    if alt else MOVE_TABLE_TM_TITLES[self.standardizeGen(gen)]
+                    if alt else MOVE_TABLE_TM_TITLES[self.standardize_gen(gen)]
                 )
 
                 if header in title:
@@ -169,12 +171,12 @@ class SerebiiReader(object):
 
         return moveset
 
-    def getURLPokemon(self, pokemon, gen):
-        strs = ARABIC_TO_STRINGS[self.standardizeGen(gen)]
+    def get_url_pokemon(self, pokemon, gen):
+        strs = ARABIC_TO_STRINGS[self.standardize_gen(gen)]
 
         return URL_POKEDEX.format(strs[TAG], strs[SUFFIX].format(pokemon))
 
-    def standardizeGen(self, gen):
+    def standardize_gen(self, gen):
         if isinstance(gen, int):
             return gen        
         if gen.isdigit():

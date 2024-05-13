@@ -2,6 +2,7 @@ import json
 
 import serebii_reader
 
+
 DEFAULT_DATA_PATH = 'data_moves.json'
 FULL_COUNT = 'full count'
 MAIN_COUNT = 'main count'
@@ -14,11 +15,11 @@ class ManageMoves(object):
 
         self.loadData()
 
-    def analyzeMoveset(self, pokemon, gen, alt='', tm=False, egg=False, tutor=False):
+    def analyze_moveset(self, pokemon, gen, alt='', tm=False, egg=False, tutor=False):
         moveset = []
 
         sr = serebii_reader.SerebiiReader()
-        moves = sr.getMoveset(pokemon, gen, alt)
+        moves = sr.get_moveset(pokemon, gen, alt)
 
         for move, level in moves.items():
             moveset.append(
@@ -32,7 +33,7 @@ class ManageMoves(object):
 
         extras = {}
         if any([tm, egg, tutor]):
-            extras = sr.getMovesetExtras(pokemon, gen, alt, tm, egg, tutor)
+            extras = sr.get_moveset_extras(pokemon, gen, alt, tm, egg, tutor)
 
         for move, label in extras.items():
             moveset.append(
@@ -48,7 +49,7 @@ class ManageMoves(object):
 
         return moveset
 
-    def depositPokemon(self, moveset, is_main=True):
+    def deposit_pokemon(self, moveset, is_main=True):
         for move in moveset:
             self._data[move][FULL_COUNT] += 1
 
@@ -57,24 +58,24 @@ class ManageMoves(object):
 
         return
 
-    def depositPokemonList(self, movesets, is_mains=None):
+    def deposit_pokemon_list(self, movesets, is_mains=None):
         mains = is_mains if isinstance(is_mains, list) else [True] * len(movesets)
 
         if is_mains is False:
             mains = [False] * len(movesets)
 
         for moveset, is_main in zip(movesets, mains):
-            self.depositPokemon(moveset, is_main)               
+            self.deposit_pokemon(moveset, is_main)               
 
         return
 
-    def loadData(self, data_path=None):
+    def load_data(self, data_path=None):
         path = self._default_path if data_path is None else data_path
 
         with open(path) as f:
             self._data = json.load(f)
 
-    def withdrawPokemon(self, moveset, is_main):
+    def withdraw_pokemon(self, moveset, is_main):
         for move in moveset:
             self._data[move][FULL_COUNT] -= 1
 
@@ -83,18 +84,18 @@ class ManageMoves(object):
 
         return
 
-    def withdrawPokemonList(self, movesets, is_mains=None):
+    def withdraw_pokemon_list(self, movesets, is_mains=None):
         mains = is_mains if isinstance(is_mains, list) else [True] * len(movesets)
 
         if is_mains is False:
             mains = [False] * len(movesets)
 
         for moveset, is_main in zip(movesets, mains):
-            self.withdrawPokemon(moveset, is_main)               
+            self.withdraw_pokemon(moveset, is_main)               
 
         return
 
-    def writeData(self, data_path=None):
+    def write_data(self, data_path=None):
         path = self._default_path if data_path is None else data_path
 
         with open(path, 'w+') as f:
