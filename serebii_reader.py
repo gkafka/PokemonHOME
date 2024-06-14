@@ -130,7 +130,6 @@ class SerebiiReader(object):
         soup = BeautifulSoup(html.text, 'html.parser')
 
         tables = soup.find_all('table', class_='dextable')
-        move_table = None
 
         for table in tables:
             first_row = table.find('tr')
@@ -143,30 +142,46 @@ class SerebiiReader(object):
             header = header.text
 
             if tm:
-                title = (
-                    MOVE_TABLE_TM_TITLES[alt]
-                    if alt else MOVE_TABLE_TM_TITLES[self.standardize_gen(gen)]
-                )
+                key = alt if alt and alt in MOVE_TABLE_TM_TITLES else self.standardize_gen(gen)
+                title = MOVE_TABLE_TM_TITLES[key]
 
                 if header in title:
                     rows = table.find_all('tr')
 
-                    for row in rows[2::2]:
+                    for row in rows[2:]:
                         cols = row.find_all('td')
+
+                        if len(cols) == 0:
+                            continue
+                        if cols[0].find('a') is None:
+                            continue
+
                         moveset[cols[1].text] = cols[0].text
 
             if egg and header == MOVE_TABLE_EGG_MOVES:
                 rows = table.find_all('tr')
 
-                for row in rows[2::2]:
+                for row in rows[2:]:
                     cols = row.find_all('td')
+
+                    if len(cols) == 0:
+                        continue
+                    if cols[0].find('a') is None:
+                        continue
+
                     moveset[cols[0].text] = header
 
             if tutor and MOVE_TABLE_MOVE_TUTOR_BASE in header:
                 rows = table.find_all('tr')
 
-                for row in rows[2::2]:
+                for row in rows[2:]:
                     cols = row.find_all('td')
+
+                    if len(cols) == 0:
+                        continue
+                    if cols[0].find('a') is None:
+                        continue
+
                     moveset[cols[0].text] = header
 
         return moveset
